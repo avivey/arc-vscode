@@ -1,7 +1,7 @@
 {
 	"name": "arc-vscode",
 	"displayName": "arc vscode",
-	"description": "Arcanist support for VSCode",
+	"description": "Arcanist (Phabricator) support for VSCode",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.46.0"
@@ -10,14 +10,15 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:arc-vscode.helloWorld"
+		"workspaceContains:**/.arclint",
+		"workspaceContains:**/.arcconfig"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "arc-vscode.helloWorld",
-				"title": "Hello World"
+				"command": "arc-vscode.clearLint",
+				"title": "Clear all arc-lint messages"
 			}
 		]
 	},
@@ -41,5 +42,8 @@
 		"mocha": "^7.1.2",
 		"typescript": "^3.8.3",
 		"vscode-test": "^1.3.0"
+	},
+	"dependencies": {
+		"execa": "^4.0.2"
 	}
 }
