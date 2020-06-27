@@ -49,20 +49,6 @@ export function activate(context: vscode.ExtensionContext) {
 			'arc', ['lint', '--output', 'json', '--', path.basename(filename)],
 			{ cwd: path.dirname(filename) },
 		).then(handleExecResult, handleExecResult);
-
-
-
-		/*
-		collection.set(document.uri, [{
-			code: '',
-			message: 'cannot assign twice to immutable variable `x`',
-			range: new vscode.Range(new vscode.Position(3, 4), new vscode.Position(3, 10)),
-			severity: vscode.DiagnosticSeverity.Error,
-			source: '',
-			relatedInformation: [
-				new vscode.DiagnosticRelatedInformation(new vscode.Location(document.uri, new vscode.Range(new vscode.Position(1, 8), new vscode.Position(1, 9))), 'first assignment to `x`')
-			]
-		}]);*/
 	}
 
 }
@@ -103,22 +89,38 @@ function lintJsonToDiagnostics(lintResults: Array<any>): vscode.Diagnostic[] {
 		}
 	*/
 
-	const severityMap = {
-		"autofix": vscode.DiagnosticSeverity.Information,
-		"advice": vscode.DiagnosticSeverity.Information,
-		"warning": vscode.DiagnosticSeverity.Warning,
-		"error": vscode.DiagnosticSeverity.Error,
+	/*
+		Extra features:
+		- quick-fix to apply patch
+		- try to get better message by parsing `description` field (per message code...)
+		- `locations` may be parsed into `relatedInformation`.
+	*/
+
+	function message(lint: any) {
+		if (lint.description)
+			return lint.name + ": " + lint.description
+		return lint.name
 	}
+
+	function severity(lint: any): vscode.DiagnosticSeverity {
+		switch (lint.severity as string) {
+			case 'disabled': return vscode.DiagnosticSeverity.Hint;
+			case 'autofix': return vscode.DiagnosticSeverity.Hint;
+			case 'advice': return vscode.DiagnosticSeverity.Information;
+			case 'warning': return vscode.DiagnosticSeverity.Warning;
+			case 'error': return vscode.DiagnosticSeverity.Error;
+			default: return vscode.DiagnosticSeverity.Error;
+		}
+	}
+
 
 	return lintResults.map(lint => {
 		return {
 			code: lint.code,
-			message: lint.name + ": " + lint.description,
-			// severity: severityMap[lint.severity as string] as vscode.DiagnosticSeverity,
-			severity: vscode.DiagnosticSeverity.Error,
+			message: message(lint),
+			severity: severity(lint),
 			source: 'arc lint',
 			range: new vscode.Range(lint.line - 1, 0, lint.line - 1, 1e9),
 		}
-
 	})
 }
