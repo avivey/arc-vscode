@@ -5,9 +5,8 @@ import * as path from "path";
 
 export function activate(context: vscode.ExtensionContext) {
 	const collection = vscode.languages.createDiagnosticCollection('arc lint');
-	if (vscode.window.activeTextEditor) {
-		lintFile(vscode.window.activeTextEditor.document);
-	}
+
+	setupCustomTranslators();
 
 	function d(disposable: vscode.Disposable) {
 		context.subscriptions.push(disposable);
@@ -17,6 +16,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	d(vscode.workspace.onDidSaveTextDocument(onTextDocumentEvent));
 	d(vscode.workspace.onDidOpenTextDocument(onTextDocumentEvent));
+
+	if (vscode.window.activeTextEditor) {
+		lintFile(vscode.window.activeTextEditor.document);
+	}
 
 	d(vscode.window.onDidChangeActiveTextEditor(editor => {
 		if (editor) {
@@ -32,6 +35,10 @@ export function activate(context: vscode.ExtensionContext) {
 		if (document.uri.scheme != "file") return;
 
 		function handleExecResult(value: execa.ExecaReturnValue<string>) {
+			//! this function throws and then we ignore if the lint actually broke.
+			if (!value.stdout)
+				return;
+
 			const lintMessages = JSON.parse(value.stdout);
 
 			for (const filename in lintMessages) {
@@ -55,6 +62,9 @@ export function deactivate() { }
 function logError(x: any) {
 	console.log("this is error", x);
 }
+
+type LintTranslator = (lint: any) => vscode.Diagnostic;
+let customLintTranslator: Map<String, LintTranslator> = new Map();
 
 function lintJsonToDiagnostics(lintResults: Array<any>): vscode.Diagnostic[] {
 	/*
@@ -93,31 +103,63 @@ function lintJsonToDiagnostics(lintResults: Array<any>): vscode.Diagnostic[] {
 		- `locations` may be parsed into `relatedInformation`.
 	*/
 
-	function message(lint: any) {
-		if (lint.description)
-			return lint.name + ": " + lint.description
-		return lint.name
+
+
+
+	function translate(lint: any): vscode.Diagnostic {
+		let t = customLintTranslator.get(lint.code) || defaultTranslate;
+		return t(lint);
 	}
 
-	function severity(lint: any): vscode.DiagnosticSeverity {
-		switch (lint.severity as string) {
-			case 'disabled': return vscode.DiagnosticSeverity.Hint;
-			case 'autofix': return vscode.DiagnosticSeverity.Hint;
-			case 'advice': return vscode.DiagnosticSeverity.Information;
-			case 'warning': return vscode.DiagnosticSeverity.Warning;
-			case 'error': return vscode.DiagnosticSeverity.Error;
-			default: return vscode.DiagnosticSeverity.Error;
-		}
+	return lintResults.map(translate);
+}
+
+function nonNeg(n: number): number {
+	if (n < 0) return 0
+	return n
+}
+
+function defaultTranslate(lint: any): vscode.Diagnostic {
+	return {
+		code: lint.code,
+		message: message(lint),
+		severity: severity(lint),
+		source: 'arc lint',
+		range: new vscode.Range(
+			lint.line - 1, nonNeg(lint.char - 2), // it's an artificial 3-chars wide thing.
+			lint.line - 1, lint.char + 1),
+	};
+}
+function message(lint: any) {
+	if (lint.description)
+		return lint.name + ": " + lint.description
+	return lint.name
+}
+
+function severity(lint: any): vscode.DiagnosticSeverity {
+	switch (lint.severity as string) {
+		case 'disabled': return vscode.DiagnosticSeverity.Hint;
+		case 'autofix': return vscode.DiagnosticSeverity.Hint;
+		case 'advice': return vscode.DiagnosticSeverity.Information;
+		case 'warning': return vscode.DiagnosticSeverity.Warning;
+		case 'error': return vscode.DiagnosticSeverity.Error;
+		default: return vscode.DiagnosticSeverity.Error;
 	}
+}
+function setupCustomTranslators() {
+	customLintTranslator.set("SPELL1",
+		lint => {
+			let d = defaultTranslate(lint)
 
+			d.message = lint.description;
+			let len = (<String>lint.original).length;
+			if (len > 0) {
+				d.range = new vscode.Range(
+					lint.line - 1, nonNeg(lint.char - 1),
+					lint.line - 1, lint.char + len - 1);
+			}
 
-	return lintResults.map(lint => {
-		return {
-			code: lint.code,
-			message: message(lint),
-			severity: severity(lint),
-			source: 'arc lint',
-			range: new vscode.Range(lint.line - 1, 0, lint.line - 1, 1e9),
+			return d
 		}
-	})
+	);
 }
