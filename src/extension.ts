@@ -32,15 +32,12 @@ export function activate(context: vscode.ExtensionContext) {
 		if (document.uri.scheme != "file") return;
 
 		function handleExecResult(value: execa.ExecaReturnValue<string>) {
-			// console.log('boo', JSON.parse(value.stdout))
-			// return;
 			const lintMessages = JSON.parse(value.stdout);
 
-			// I only expect one file here.
 			for (const filename in lintMessages) {
+				// TODO: This only probably works because we call arc with a single file.
 				collection.set(document.uri, lintJsonToDiagnostics(lintMessages[filename]));
 			}
-
 		}
 
 		const filename = document.uri.path;
