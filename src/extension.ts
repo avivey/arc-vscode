@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as execa from "execa";
 import * as path from "path";
+import { ArcanistLintMessage } from './arcanist_types';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -58,16 +59,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 }
 
-export function deactivate() { }
+export function deactivate() {
+	// TODO collection.clear();
+ }
 
 function logError(x: any) {
 	console.log("this is error", x);
 }
 
-type LintTranslator = (lint: any) => vscode.Diagnostic;
+type LintTranslator = (lint: ArcanistLintMessage) => vscode.Diagnostic;
 let customLintTranslator: Map<String, LintTranslator> = new Map();
 
-function lintJsonToDiagnostics(lintResults: Array<any>): vscode.Diagnostic[] {
+function lintJsonToDiagnostics(lintResults: Array<ArcanistLintMessage>): vscode.Diagnostic[] {
 	/*
 	input: Array of:
  		{
@@ -107,7 +110,7 @@ function lintJsonToDiagnostics(lintResults: Array<any>): vscode.Diagnostic[] {
 
 
 
-	function translate(lint: any): vscode.Diagnostic {
+	function translate(lint: ArcanistLintMessage): vscode.Diagnostic {
 		let t = customLintTranslator.get(lint.code) || defaultTranslate;
 		return t(lint);
 	}
@@ -119,7 +122,7 @@ function nonNeg(n: number): number {
 	return n < 0 ? 0 : n
 }
 
-function defaultTranslate(lint: any): vscode.Diagnostic {
+function defaultTranslate(lint: ArcanistLintMessage): vscode.Diagnostic {
 	return {
 		code: lint.code,
 		message: message(lint),
@@ -130,13 +133,13 @@ function defaultTranslate(lint: any): vscode.Diagnostic {
 			lint.line - 1, lint.char + 1),
 	};
 }
-function message(lint: any) {
+function message(lint: ArcanistLintMessage) {
 	if (lint.description)
 		return lint.name + ": " + lint.description
 	return lint.name
 }
 
-function severity(lint: any): vscode.DiagnosticSeverity {
+function severity(lint: ArcanistLintMessage): vscode.DiagnosticSeverity {
 	switch (lint.severity as string) {
 		case 'disabled': return vscode.DiagnosticSeverity.Hint;
 		case 'autofix': return vscode.DiagnosticSeverity.Hint;
@@ -150,8 +153,8 @@ function setupCustomTranslators() {
 	customLintTranslator.set("SPELL1", lint => {
 		let d = defaultTranslate(lint)
 
-		d.message = lint.description;
-		let len = (<String>lint.original).length;
+		d.message = <string>lint.description;
+		let len = (<string>lint.original).length;
 		if (len > 0) {
 			d.range = new vscode.Range(
 				lint.line - 1, nonNeg(lint.char - 1),
@@ -177,7 +180,7 @@ function setupCustomTranslators() {
 	customLintTranslator.set('TXT3', lint => {
 		let d = defaultTranslate(lint)
 
-		let match = lint.description.match(re_TXT3_length);
+		let match = (<string>lint.description).match(re_TXT3_length);
 		if (match) {
 			let len = parseInt(match[1]);
 			d.range = new vscode.Range(
