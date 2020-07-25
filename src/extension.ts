@@ -35,15 +35,16 @@ export function activate(context: vscode.ExtensionContext) {
 		if (document.uri.scheme != "file") return;
 
 		function handleExecResult(value: execa.ExecaReturnValue<string>) {
-			//! this function throws and then we ignore if the lint actually broke.
-			if (!value.stdout)
-				return;
+			if (!value.stdout) return;
+			try {
+				const lintMessages = JSON.parse(value.stdout);
 
-			const lintMessages = JSON.parse(value.stdout);
-
-			for (const filename in lintMessages) {
-				// TODO: This only probably works because we call arc with a single file.
-				collection.set(document.uri, lintJsonToDiagnostics(lintMessages[filename]));
+				for (const filename in lintMessages) {
+					// TODO: This only probably works because we call arc with a single file.
+					collection.set(document.uri, lintJsonToDiagnostics(lintMessages[filename]));
+				}
+			} catch {
+				logError("ppfff");
 			}
 		}
 
@@ -115,8 +116,7 @@ function lintJsonToDiagnostics(lintResults: Array<any>): vscode.Diagnostic[] {
 }
 
 function nonNeg(n: number): number {
-	if (n < 0) return 0
-	return n
+	return n < 0 ? 0 : n
 }
 
 function defaultTranslate(lint: any): vscode.Diagnostic {
@@ -147,19 +147,44 @@ function severity(lint: any): vscode.DiagnosticSeverity {
 	}
 }
 function setupCustomTranslators() {
-	customLintTranslator.set("SPELL1",
-		lint => {
-			let d = defaultTranslate(lint)
+	customLintTranslator.set("SPELL1", lint => {
+		let d = defaultTranslate(lint)
 
-			d.message = lint.description;
-			let len = (<String>lint.original).length;
-			if (len > 0) {
-				d.range = new vscode.Range(
-					lint.line - 1, nonNeg(lint.char - 1),
-					lint.line - 1, lint.char + len - 1);
-			}
-
-			return d
+		d.message = lint.description;
+		let len = (<String>lint.original).length;
+		if (len > 0) {
+			d.range = new vscode.Range(
+				lint.line - 1, nonNeg(lint.char - 1),
+				lint.line - 1, lint.char + len - 1);
 		}
-	);
+
+		return d
+	});
+
+	// "This line is 116 characters long, but the convention is 80 characters."
+	const re_TXT3_length = /\D(\d+) characters\.$/;
+
+	customLintTranslator.set('E501', lint => {
+		let d = defaultTranslate(lint)
+
+		d.range = new vscode.Range(
+			lint.line - 1, lint.char - 1,
+			lint.line - 1, 1e9);
+
+		return d;
+	});
+
+	customLintTranslator.set('TXT3', lint => {
+		let d = defaultTranslate(lint)
+
+		let match = lint.description.match(re_TXT3_length);
+		if (match) {
+			let len = parseInt(match[1]);
+			d.range = new vscode.Range(
+				lint.line - 1, len,
+				lint.line - 1, 1e9);
+		}
+
+		return d;
+	});
 }
