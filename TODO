@@ -1,0 +1,31 @@
+MVP
+===
+- lint everything
+- [v] lint on save
+- settings
+    - max error level
+- delete lint on close file
+- reasonable code layout
+
+TODO
+====
+- lint current file
+- [v] command clear all issues
+- define type for ArcanistLintMessage
+
+Long Term Desired Features
+==========================
+- Fancy UIs for
+    - arc patch
+    - arc todo
+    - arc unit
+    - arc browse
+    - arc paste (upload and download)
+- list open Differential in repo (for review)
+- get hovercard (content) for any object
+- push notifications from website ?
+- preview Remarkup
+- some magic to help the External Editor Link
+- arc lint: special-case some messages for better visibility (find more range/information.)
+- arc lint: support auto-fix (apply diff)
+- arc lint: `locations` field may be parsed into `relatedInformation`.
