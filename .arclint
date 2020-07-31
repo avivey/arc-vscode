@@ -1,0 +1,31 @@
+{
+    "linters": {
+        "chmod": {
+            "type": "chmod"
+        },
+        "filename": {
+            "type": "filename"
+        },
+        "generated": {
+            "type": "generated"
+        },
+        "eslint": {
+            "type": "eslint",
+            "include": "(\\.ts$)",
+            "bin": "./node_modules/.bin/eslint"
+        },
+        "merge-conflict": {
+            "type": "merge-conflict"
+        },
+        "nolint": {
+            "type": "nolint"
+        },
+        "spelling": {
+            "type": "spelling"
+        },
+        "text": {
+            "type": "text",
+            "text.max-line-length": 120
+        }
+    }
+}
