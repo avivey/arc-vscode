@@ -25,7 +25,10 @@
         },
         "text": {
             "type": "text",
-            "text.max-line-length": 120
+            "text.max-line-length": 120,
+            "severity": {
+                "2": "disabled"
+            }
         }
     }
 }

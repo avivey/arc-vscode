@@ -13,10 +13,10 @@ export function setup() {
 }
 
 export function lintFile(document: vscode.TextDocument, errorCollection: vscode.DiagnosticCollection) {
-    if (document.uri.scheme != "file") return;
+    if (document.uri.scheme !== "file") { return; }
 
     function handleExecResult(value: execa.ExecaReturnValue<string>) {
-        if (!value.stdout) return;
+        if (!value.stdout) { return; }
         try {
             const lintMessages = JSON.parse(value.stdout);
 
@@ -37,43 +37,43 @@ export function lintFile(document: vscode.TextDocument, errorCollection: vscode.
     ).then(handleExecResult, handleExecResult);
 }
 
-	/**
-    input:
-    ```
-    {
-        "line": 248,
-        "char": 23,
-        "code": "SPELL1",
-        "severity": "warning",
-        "name": "Possible Spelling Mistake",
-        "description": "Possible spelling error. You wrote 'seperator', but did you mean 'separator'?",
-        "original": "Seperator",
-        "replacement": "Separator",
-        "granularity": 1,
-        "locations": [],
-        "bypassChangedLineFiltering": null,
-        "context": "    magic = COLOR_RED;\n    break;\n  case 30:\n    // printf(\"Record Seperator\");\n    magic = COLOR_BLUE;\n    break;\n  case 31:"
-    }
-    ```
-    output:
-    ```
-    {
-        code: '',
-        message: 'cannot assign twice to immutable variable `x`',
-        range: new vscode.Range(new vscode.Position(3, 4), new vscode.Position(3, 10)),
-        severity: vscode.DiagnosticSeverity.Error,
-        source: '',
-        relatedInformation: [
-            new vscode.DiagnosticRelatedInformation(new vscode.Location(document.uri, new vscode.Range(new vscode.Position(1, 8), new vscode.Position(1, 9))), 'first assignment to `x`')
-        ]
-    }
-    ```
+/**
+input:
+```
+{
+    "line": 248,
+    "char": 23,
+    "code": "SPELL1",
+    "severity": "warning",
+    "name": "Possible Spelling Mistake",
+    "description": "Possible spelling error. You wrote 'seperator', but did you mean 'separator'?",
+    "original": "Seperator",
+    "replacement": "Separator",
+    "granularity": 1,
+    "locations": [],
+    "bypassChangedLineFiltering": null,
+    "context": "    magic = COLOR_RED;\n    break;\n  case 30:\n    // printf(\"Record Seperator\");\n    magic = COLOR_BLUE;\n    break;\n  case 31:"
+}
+```
+output:
+```
+{
+    code: '',
+    message: 'cannot assign twice to immutable variable `x`',
+    range: new vscode.Range(new vscode.Position(3, 4), new vscode.Position(3, 10)),
+    severity: vscode.DiagnosticSeverity.Error,
+    source: '',
+    relatedInformation: [
+        new vscode.DiagnosticRelatedInformation(new vscode.Location(document.uri, new vscode.Range(new vscode.Position(1, 8), new vscode.Position(1, 9))), 'first assignment to `x`')
+    ]
+}
+```
 
-    Possible Extra features:
-    - quick-fix to apply patch
-    - try to get better message by parsing `description` field (per message code...)
-    - `locations` may be parsed into `relatedInformation`.
-	*/
+Possible Extra features:
+- quick-fix to apply patch
+- try to get better message by parsing `description` field (per message code...)
+- `locations` may be parsed into `relatedInformation`.
+*/
 export type LintTranslator = (lint: ArcanistLintMessage) => vscode.Diagnostic;
 let customLintTranslator: Map<String, LintTranslator> = new Map();
 
@@ -91,9 +91,8 @@ export function defaultLintTranslator(lint: ArcanistLintMessage): vscode.Diagnos
 }
 
 function message(lint: ArcanistLintMessage) {
-    if (lint.description)
-        return lint.name + ": " + lint.description
-    return lint.name
+    if (lint.description) { return lint.name + ": " + lint.description; }
+    return lint.name;
 }
 
 let lintSeverityMap: Map<String, vscode.DiagnosticSeverity>;
@@ -114,11 +113,11 @@ export function updateLintSeverityMap(): void {
     }
 
     lintSeverityMap = new Map();
-    lintSeverityMap.set('disabled', capped(vscode.DiagnosticSeverity.Hint))
-    lintSeverityMap.set('autofix', capped(vscode.DiagnosticSeverity.Information))
-    lintSeverityMap.set('advice', capped(vscode.DiagnosticSeverity.Information))
-    lintSeverityMap.set('warning', capped(vscode.DiagnosticSeverity.Warning))
-    lintSeverityMap.set('error', capped(vscode.DiagnosticSeverity.Error))
+    lintSeverityMap.set('disabled', capped(vscode.DiagnosticSeverity.Hint));
+    lintSeverityMap.set('autofix', capped(vscode.DiagnosticSeverity.Information));
+    lintSeverityMap.set('advice', capped(vscode.DiagnosticSeverity.Information));
+    lintSeverityMap.set('warning', capped(vscode.DiagnosticSeverity.Warning));
+    lintSeverityMap.set('error', capped(vscode.DiagnosticSeverity.Error));
 }
 
 function severity(lint: ArcanistLintMessage): vscode.DiagnosticSeverity {
