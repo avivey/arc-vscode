@@ -16,7 +16,10 @@ export function lintFile(document: vscode.TextDocument, errorCollection: vscode.
     if (document.uri.scheme !== "file") { return; }
 
     function handleExecResult(value: execa.ExecaReturnValue<string>) {
-        if (!value.stdout) { return; }
+        if (!value.stdout) {
+            errorCollection.delete(document.uri);
+            return;
+        }
         try {
             const lintMessages = JSON.parse(value.stdout);
 
