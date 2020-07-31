@@ -20,7 +20,18 @@
 				"command": "arc-vscode.clearLint",
 				"title": "Clear all arc-lint messages"
 			}
-		]
+		],
+		"configuration": {
+			"title": "Arcanist",
+			"properties": {
+				"arc-vscode.lint.maxDiagnosticsLevel": {
+					"type": "string",
+					"default": "error",
+					"enum": ["error", "warning", "info", "hint"],
+					"description": "The maximum level a lint can appear at."
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

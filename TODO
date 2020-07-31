@@ -1,9 +1,6 @@
 MVP
 ===
 - lint everything
-- [v] lint on save
-- settings
-    - max error level
 - delete lint on close file
 - reasonable code layout
 

@@ -8,6 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const collection = vscode.languages.createDiagnosticCollection('arc lint');
 
 	setupCustomTranslators();
+	updateLintSeverityMap();
 
 	function d(disposable: vscode.Disposable) {
 		context.subscriptions.push(disposable);
@@ -17,6 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	d(vscode.workspace.onDidSaveTextDocument(onTextDocumentEvent));
 	d(vscode.workspace.onDidOpenTextDocument(onTextDocumentEvent));
+	d(vscode.workspace.onDidChangeConfiguration(onChangeConfig));
 
 	if (vscode.window.activeTextEditor) {
 		lintFile(vscode.window.activeTextEditor.document);
@@ -61,7 +63,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
 	// TODO collection.clear();
- }
+}
+
+function onChangeConfig(e: vscode.ConfigurationChangeEvent) {
+	if (!e.affectsConfiguration('arc-vscode.lint')) {
+		return;
+	}
+	updateLintSeverityMap();
+}
 
 function logError(x: any) {
 	console.log("this is error", x);
@@ -107,9 +116,6 @@ function lintJsonToDiagnostics(lintResults: Array<ArcanistLintMessage>): vscode.
 		- `locations` may be parsed into `relatedInformation`.
 	*/
 
-
-
-
 	function translate(lint: ArcanistLintMessage): vscode.Diagnostic {
 		let t = customLintTranslator.get(lint.code) || defaultTranslate;
 		return t(lint);
@@ -120,6 +126,35 @@ function lintJsonToDiagnostics(lintResults: Array<ArcanistLintMessage>): vscode.
 
 function nonNeg(n: number): number {
 	return n < 0 ? 0 : n
+}
+
+let lintSeverityMap: Map<String, vscode.DiagnosticSeverity>;
+function updateLintSeverityMap(): void {
+	let config = vscode.workspace.getConfiguration('arc-vscode.lint');
+	let maxLevel: vscode.DiagnosticSeverity;
+	switch (config.maxDiagnosticsLevel as string) {
+		case 'hint': maxLevel = vscode.DiagnosticSeverity.Hint; break;
+		case 'info': maxLevel = vscode.DiagnosticSeverity.Information; break;
+		case 'warning': maxLevel = vscode.DiagnosticSeverity.Warning; break;
+		case 'error':
+		default:
+			maxLevel = vscode.DiagnosticSeverity.Error; break;
+	}
+
+	function capped(level: vscode.DiagnosticSeverity): vscode.DiagnosticSeverity {
+		return level > maxLevel ? level : maxLevel;
+	}
+
+	lintSeverityMap = new Map();
+	lintSeverityMap.set('disabled', capped(vscode.DiagnosticSeverity.Hint))
+	lintSeverityMap.set('autofix', capped(vscode.DiagnosticSeverity.Information))
+	lintSeverityMap.set('advice', capped(vscode.DiagnosticSeverity.Information))
+	lintSeverityMap.set('warning', capped(vscode.DiagnosticSeverity.Warning))
+	lintSeverityMap.set('error', capped(vscode.DiagnosticSeverity.Error))
+}
+
+function severity(lint: ArcanistLintMessage): vscode.DiagnosticSeverity {
+	return lintSeverityMap.get(lint.severity as string) || vscode.DiagnosticSeverity.Error;
 }
 
 function defaultTranslate(lint: ArcanistLintMessage): vscode.Diagnostic {
@@ -139,16 +174,6 @@ function message(lint: ArcanistLintMessage) {
 	return lint.name
 }
 
-function severity(lint: ArcanistLintMessage): vscode.DiagnosticSeverity {
-	switch (lint.severity as string) {
-		case 'disabled': return vscode.DiagnosticSeverity.Hint;
-		case 'autofix': return vscode.DiagnosticSeverity.Hint;
-		case 'advice': return vscode.DiagnosticSeverity.Information;
-		case 'warning': return vscode.DiagnosticSeverity.Warning;
-		case 'error': return vscode.DiagnosticSeverity.Error;
-		default: return vscode.DiagnosticSeverity.Error;
-	}
-}
 function setupCustomTranslators() {
 	customLintTranslator.set("SPELL1", lint => {
 		let d = defaultTranslate(lint)
