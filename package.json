@@ -27,11 +27,27 @@
 				"arc-vscode.lint.maxDiagnosticsLevel": {
 					"type": "string",
 					"default": "error",
-					"enum": ["error", "warning", "info", "hint"],
+					"enum": [
+						"error",
+						"warning",
+						"info",
+						"hint"
+					],
 					"description": "The maximum level a lint can appear at."
 				}
 			}
-		}
+		},
+		"languages": [
+			{
+				"id": "json",
+				"extensions": [
+					".arcconfig",
+					".arclint",
+					".arcrc",
+					".arcunit"
+				]
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
