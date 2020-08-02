@@ -3,19 +3,19 @@ Related:
     - Format file by arc-lint
     - Last update 11-2019
 - https://marketplace.visualstudio.com/items?itemName=christianvuerings.vscode-phabricator
-    - 💬 Autocomplete users and projects
-    - 🗒️ List accepted diffs with build status
-    - 🔔 Notify about ready to land diffs
+    - Autocomplete users and projects
+    - List accepted diffs with build status
+    - Notify about ready to land diffs
     - Good as editor for arc-diff message
-    - 03-2020
+    - Last update 07-2020
     - has icon
 - https://marketplace.visualstudio.com/items?itemName=PranaySingh.phabview
     - generate diffusion link, copy to clipboard
-    - 02-2020
+    - Last update 02-2020
 - https://marketplace.visualstudio.com/items?itemName=mezzode.arc-browse
     - runs arc browse ?
-    - 02-2019
+    - Last update 02-2019
     - has icon
 - https://marketplace.visualstudio.com/items?itemName=matt-good.phabricator-links
     - converts `T1234`, etc., to a hyperlink
-    - 03-2018
+    - Last update 03-2018

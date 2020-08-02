@@ -5,14 +5,13 @@ TODO
 Long Term Desired Features
 ==========================
 - Fancy UIs for
-    - arc patch
-    - arc todo
-    - arc unit
+    - quick create task (arc todo)
+    - arc unit (show results in vscode-native way)
     - arc browse
     - arc paste (upload and download)
 - list open Differential in repo (for review)
 - get hovercard (content) for any object
-- push notifications from website ?
+- push notifications from website?
 - preview Remarkup
 - some magic to help the External Editor Link
 - arc lint: special-case some messages for better visibility (find more range/information.)
