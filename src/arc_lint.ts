@@ -27,8 +27,8 @@ export function lintFile(document: vscode.TextDocument, errorCollection: vscode.
                 // TODO: This only probably works because we call arc with a single file.
                 errorCollection.set(document.uri, lintJsonToDiagnostics(lintMessages[filename]));
             }
-        } catch {
-            console.log("ppfff");
+        } catch (e) {
+            console.log("Ignoring error", e);
         }
     }
 
@@ -38,6 +38,36 @@ export function lintFile(document: vscode.TextDocument, errorCollection: vscode.
         'arc', ['lint', '--output', 'json', '--', path.basename(filename)],
         { cwd: path.dirname(filename) },
     ).then(handleExecResult, handleExecResult);
+}
+
+export function lintEverything(errorCollection: vscode.DiagnosticCollection) {
+    if (!vscode.workspace.workspaceFolders) { return; }
+
+    for (const folder of vscode.workspace.workspaceFolders) {
+
+        function handleArcLintEverything(value: execa.ExecaReturnValue<string>) {
+            // The output is best described as "json lines" - each line is a complete
+            // json object, with one key (filename). This might be a bug in Arcanist.
+            for (const line of value.stdout.split(/\r?\n/)) {
+                try {
+                    const lintMessages = JSON.parse(line);
+                    for (const filename in lintMessages) {
+                        const fileUri = vscode.Uri.joinPath(folder.uri, filename);
+                        errorCollection.set(fileUri, lintJsonToDiagnostics(lintMessages[filename]));
+                    }
+                } catch (e) {
+                    console.log("Ignoring error", e);
+                }
+            }
+        }
+
+        if (folder.uri.scheme === "file") {
+            execa(
+                'arc', ['lint', '--output', 'json', '--everything'],
+                { cwd: folder.uri.fsPath },
+            ).then(handleArcLintEverything, handleArcLintEverything);
+        }
+    }
 }
 
 /**

@@ -12,6 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
 	d(diagnostics);
 
 	d(vscode.commands.registerCommand('arc-vscode.clearLint', () => diagnostics.clear()));
+	d(vscode.commands.registerCommand('arc-vscode.lintEverything', () => lint.lintEverything(diagnostics)));
 
 	d(vscode.workspace.onDidSaveTextDocument(onTextDocumentEvent));
 	d(vscode.workspace.onDidOpenTextDocument(onTextDocumentEvent));

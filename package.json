@@ -19,6 +19,10 @@
 			{
 				"command": "arc-vscode.clearLint",
 				"title": "Clear all arc-lint messages"
+			},
+			{
+				"command": "arc-vscode.lintEverything",
+				"title": "arc lint --everything"
 			}
 		],
 		"configuration": {
