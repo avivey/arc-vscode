@@ -6,7 +6,7 @@ features integrated with Visual Studio Code.
 
 ## Features
 
-* Show arc-lint notes in editor
+* Show arc-lint notes in editor \
 ![arc lint](images/lint.png)
 * Recognize Arcanist files as JSON
 
