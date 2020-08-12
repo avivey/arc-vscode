@@ -6,10 +6,9 @@ features integrated with Visual Studio Code.
 
 ## Features
 
-- Show arc-lint notes in editor
+* Show arc-lint notes in editor
 ![arc lint](images/lint.png)
-- Recognize Arcanist files as JSON
-
+* Recognize Arcanist files as JSON
 
 ## Requirements
 
@@ -23,7 +22,7 @@ Only reasonably recent versions of Arcanist are supported.
 
 * Lints do not update as you type - you must save a file for changes to take
   effect. Lints also might drift when making large changes.
-* Most lints only show up as 3-characters-squiggle, which is hard to see.
+* Most lints only show up as 3-characters-squiggle, which is hard to see.\
   We suggest users install the `usernamehw.errorlens` extension.
 
 

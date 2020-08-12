@@ -1,21 +1,20 @@
-Related:
+These are all the extensions I could find that refer to phabricator/Arcanist:
+
 - https://marketplace.visualstudio.com/items?itemName=jdxcode.arcanist-vscode
-    - Format file by arc-lint
-    - Last update 11-2019
+  - Format file by arc-lint
+  - Last update 11-2019
 - https://marketplace.visualstudio.com/items?itemName=christianvuerings.vscode-phabricator
-    - Autocomplete users and projects
-    - List accepted diffs with build status
-    - Notify about ready to land diffs
-    - Good as editor for arc-diff message
-    - Last update 07-2020
-    - has icon
+  - Autocomplete users and projects
+  - List accepted diffs with build status
+  - Notify about ready to land diffs
+  - Good as editor for arc-diff message
+  - Last update 07-2020
 - https://marketplace.visualstudio.com/items?itemName=PranaySingh.phabview
-    - generate diffusion link, copy to clipboard
-    - Last update 02-2020
+  - generate diffusion link, copy to clipboard
+  - Last update 02-2020
 - https://marketplace.visualstudio.com/items?itemName=mezzode.arc-browse
-    - runs arc browse ?
-    - Last update 02-2019
-    - has icon
+  - runs arc browse ?
+  - Last update 02-2019
 - https://marketplace.visualstudio.com/items?itemName=matt-good.phabricator-links
-    - converts `T1234`, etc., to a hyperlink
-    - Last update 03-2018
+  - converts `T1234`, etc., to a hyperlink
+  - Last update 03-2018

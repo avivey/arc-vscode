@@ -1,14 +1,17 @@
 {
-	"name": "arc-vscode",
-	"displayName": "arc vscode",
-	"description": "Arcanist (Phabricator) support for VSCode",
-	"version": "0.0.1",
+	"name": "arcanist",
+	"displayName": "Arcanist",
+	"description": "Phabricator/Arcanist support for VSCode",
+	"publisher": "avive",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.46.0"
 	},
 	"categories": [
 		"Other"
 	],
+	"keywords": ["Phabricator"],
+	"license": "MIT",
 	"activationEvents": [
 		"workspaceContains:**/.arclint",
 		"workspaceContains:**/.arcconfig"
@@ -53,6 +56,10 @@
 			}
 		]
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/avivey/arc-vscode.git"
+	  },
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",

@@ -10,4 +10,8 @@ vsc-extension-quickstart.md
 **/*.ts
 *.vsix
 NOTES
+RELATED
+TODO
 .arc*
+.pinterest-linters/
+.gitmodules
