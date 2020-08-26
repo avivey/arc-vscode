@@ -45,4 +45,15 @@ export function setupCustomTranslators(translators: Map<String, LintTranslator>)
 
         return d;
     });
+
+    // "This comment has a TODO."
+    translators.set("XHP16", lint => {
+        let d = defaultLintTranslator(lint);
+
+        d.range = new vscode.Range(
+            lint.line - 1, lint.char - 1,
+            lint.line - 1, lint.char + 3);
+
+        return d;
+    })
 }
