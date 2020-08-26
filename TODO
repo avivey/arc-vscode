@@ -1,6 +1,6 @@
 TODO
 ====
-(There's nothing left to do. All work is complete.)
+- Some UI hint that arc-lint is running.
 
 Long Term Desired Features
 ==========================
@@ -18,3 +18,4 @@ Long Term Desired Features
 - arc lint: special-case some messages for better visibility (find more range/information.)
 - arc lint: support auto-fix (apply diff)
 - arc lint: `locations` field may be parsed into `relatedInformation`.
+- "recent activity" feed?

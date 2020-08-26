@@ -30,5 +30,8 @@
                 "2": "disabled"
             }
         }
-    }
+    },
+    "exclude": [
+        "package-lock.json"
+    ]
 }
