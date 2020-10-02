@@ -2,14 +2,17 @@ import * as vscode from 'vscode';
 import * as lint from './arc_lint';
 
 export function activate(context: vscode.ExtensionContext) {
+	const log = vscode.window.createOutputChannel("arcanist");
+
 	const diagnostics = vscode.languages.createDiagnosticCollection('arc lint');
 
-	lint.setup();
+	lint.setup(log);
 
 	function d(disposable: vscode.Disposable) {
 		context.subscriptions.push(disposable);
 	}
 	d(diagnostics);
+	d(log);
 
 	d(vscode.commands.registerCommand('arc-vscode.clearLint', () => diagnostics.clear()));
 	d(vscode.commands.registerCommand('arc-vscode.lintEverything', () => lint.lintEverything(diagnostics)));

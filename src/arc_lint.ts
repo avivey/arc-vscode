@@ -7,7 +7,10 @@ import { ArcanistLintMessage } from './arcanist_types';
 import { setupCustomTranslators } from './arc_lint_translators';
 
 
-export function setup() {
+var LOG: vscode.OutputChannel;
+
+export function setup(log: vscode.OutputChannel) {
+    LOG = log;
     setupCustomTranslators(customLintTranslator);
     updateLintSeverityMap();
 }
@@ -33,6 +36,8 @@ export function lintFile(document: vscode.TextDocument, errorCollection: vscode.
     }
 
     const filename = document.uri.path;
+
+    LOG.appendLine("linting "+ filename);
 
     execa(
         'arc', ['lint', '--output', 'json', '--', path.basename(filename)],
