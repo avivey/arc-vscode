@@ -8,6 +8,8 @@ features integrated with Visual Studio Code.
 
 * Show arc-lint notes in editor \
 ![arc lint](images/lint.png)
+* Open file in Diffusion \
+![arc browse](images/browse.png)
 * Recognize Arcanist files as JSON
 
 ## Requirements

@@ -7,7 +7,6 @@ Long Term Desired Features
 - Fancy UIs for
   - quick create task (arc todo)
   - arc unit (show results in vscode-native way, show code coverage)
-  - arc browse
   - arc paste (upload and download)
 - list open Differential Revision in repo (for review)
   - Also arc-patch them
