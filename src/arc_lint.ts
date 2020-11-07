@@ -117,14 +117,25 @@ let customLintTranslator: Map<String, LintTranslator> = new Map();
 
 
 export function defaultLintTranslator(lint: ArcanistLintMessage): vscode.Diagnostic {
+    let range = new vscode.Range(
+        lint.line - 1, nonNeg(lint.char - 2), // it's an artificial 3-chars wide thing.
+        lint.line - 1, lint.char + 1);
+
+    if (lint.original) {
+        let len = (<string>lint.original).length;
+        if (len > 0) {
+            range = new vscode.Range(
+                lint.line - 1, nonNeg(lint.char - 1),
+                lint.line - 1, lint.char + len - 1);
+        }
+    }
+
     return {
         code: lint.code,
         message: message(lint),
         severity: severity(lint),
         source: 'arc lint',
-        range: new vscode.Range(
-            lint.line - 1, nonNeg(lint.char - 2), // it's an artificial 3-chars wide thing.
-            lint.line - 1, lint.char + 1),
+        range: range,
     };
 }
 
