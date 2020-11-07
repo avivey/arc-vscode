@@ -18,14 +18,39 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"menus": {
+			"editor/title/context": [
+				{
+					"command": "arc-vscode.browseFile"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "arc-vscode.browseFile"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "arc-vscode.browseFile"
+				}
+			]
+		},
 		"commands": [
 			{
+				"command": "arc-vscode.browseFile",
+				"title": "Browse in Diffusion",
+				"category": "arc",
+				"icon": "$(account)"
+			},
+			{
 				"command": "arc-vscode.clearLint",
-				"title": "Clear all arc-lint messages"
+				"title": "Clear all arc-lint messages",
+				"category": "arc"
 			},
 			{
 				"command": "arc-vscode.lintEverything",
-				"title": "arc lint --everything"
+				"title": "arc lint --everything",
+				"category": "arc"
 			}
 		],
 		"configuration": {
