@@ -10,6 +10,8 @@ features integrated with Visual Studio Code.
 ![arc lint](images/lint.png)
 * Open file in Diffusion \
 ![arc browse](images/browse.png)
+* Show hovercards for Phabricator object mentions \
+![hovercard](images/hovercard.png)
 * Recognize Arcanist files as JSON
 
 ## Requirements
@@ -26,7 +28,7 @@ Only reasonably recent versions of Arcanist are supported.
   effect. Lints also might drift when making large changes.
 * Most lints only show up as 3-characters-squiggle, which is hard to see.\
   We suggest users install the `usernamehw.errorlens` extension.
-
+* When working with multiple Phabricator servers, the hovercard cache may get confused.
 
 ## Disclaimers
 

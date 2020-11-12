@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as lint from './arc_lint';
 import * as browse from './arc_browse';
+import * as hovercard from './hovercard';
 
 export function activate(context: vscode.ExtensionContext) {
 	const log = vscode.window.createOutputChannel("arcanist");
@@ -15,6 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 	d(diagnostics);
 	d(log);
+
+	d(hovercard.register());
 
 	d(vscode.commands.registerCommand("arc-vscode.browseFile", browse.browseFile));
 
