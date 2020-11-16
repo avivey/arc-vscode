@@ -1,3 +1,7 @@
+## [1.2.0] - November 2020
+
+- New feature: Hovercards for object mentions
+
 ## [1.1.0] - November 2020
 
 - New feature: Browse in Diffusion
