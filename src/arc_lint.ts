@@ -76,36 +76,6 @@ export function lintEverything(errorCollection: vscode.DiagnosticCollection) {
 }
 
 /**
-input:
-```
-{
-    "line": 248,
-    "char": 23,
-    "code": "SPELL1",
-    "severity": "warning",
-    "name": "Possible Spelling Mistake",
-    "description": "Possible spelling error. You wrote 'seperator', but did you mean 'separator'?",
-    "original": "Seperator",
-    "replacement": "Separator",
-    "granularity": 1,
-    "locations": [],
-    "bypassChangedLineFiltering": null,
-    "context": "    magic = COLOR_RED;\n    break;\n  case 30:\n    // printf(\"Record Seperator\");\n    magic = COLOR_BLUE;\n    break;\n  case 31:"
-}
-```
-output:
-```
-{
-    code: '',
-    message: 'cannot assign twice to immutable variable `x`',
-    range: new vscode.Range(new vscode.Position(3, 4), new vscode.Position(3, 10)),
-    severity: vscode.DiagnosticSeverity.Error,
-    source: '',
-    relatedInformation: [
-        new vscode.DiagnosticRelatedInformation(new vscode.Location(document.uri, new vscode.Range(new vscode.Position(1, 8), new vscode.Position(1, 9))), 'first assignment to `x`')
-    ]
-}
-```
 
 Possible Extra features:
 - quick-fix to apply patch
