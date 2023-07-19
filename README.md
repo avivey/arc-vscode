@@ -1,6 +1,6 @@
 # Arcanist: A VSCode Extension
 
-An extension for getting some of [Phabricator/Arcanist](https://phacility.com/phabricator/)
+An extension for getting some of [Phorge/Arcanist](https://we.phorge.it/)
 features integrated with Visual Studio Code.
 
 
@@ -10,7 +10,7 @@ features integrated with Visual Studio Code.
 ![arc lint](images/lint.png)
 * Open file in Diffusion \
 ![arc browse](images/browse.png)
-* Show hovercards for Phabricator object mentions \
+* Show hovercards for Phorge object mentions \
 ![hovercard](images/hovercard.png)
 * Recognize Arcanist files as JSON
 
@@ -28,10 +28,10 @@ Only reasonably recent versions of Arcanist are supported.
   effect. Lints also might drift when making large changes.
 * Most lints only show up as 3-characters-squiggle, which is hard to see.\
   We suggest users install the `usernamehw.errorlens` extension.
-* When working with multiple Phabricator servers, the hovercard cache may get confused.
+* When working with multiple Phorge servers, the hovercard cache may get confused.
 
 ## Disclaimers
 
 This extension is not affiliated with, nor is it supported by,
-[Phacility](https://phacility.com/) or the Phabricator project.
+[Phacility](https://phacility.com/), the Phabricator project or the Phorge project.
 All trademarks are property of their respective owners.

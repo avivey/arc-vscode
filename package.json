@@ -85,9 +85,10 @@
 			}
 		]
 	},
+	"homepage": "https://we.phorge.it/tag/arc-vscode/",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/avivey/arc-vscode.git"
+		"url": "https://we.phorge.it/source/arc-vscode.git"
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

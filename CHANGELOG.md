@@ -1,3 +1,7 @@
+## [1.3.0] - TBD 2023
+
+- Moved hosting to https://we.phorge.it/ and update the brand
+
 ## [1.2.0] - November 2020
 
 - New feature: Hovercards for object mentions
