@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as execa from 'execa';
 import * as path from 'path';
 
-import { nonNeg } from './misc';
 import { ArcanistLintMessage } from './arcanist_types';
 import { setupCustomTranslators } from './arc_lint_translators';
 
@@ -85,27 +84,34 @@ Possible Extra features:
 export type LintTranslator = (lint: ArcanistLintMessage) => vscode.Diagnostic;
 let customLintTranslator: Map<String, LintTranslator> = new Map();
 
+export function getRangeForLint(lint: ArcanistLintMessage): vscode.Range {
 
-export function defaultLintTranslator(lint: ArcanistLintMessage): vscode.Diagnostic {
-    let range = new vscode.Range(
-        lint.line - 1, nonNeg(lint.char - 2), // it's an artificial 3-chars wide thing.
-        lint.line - 1, lint.char + 1);
+    let line = lint.line == null? 1: lint.line -1;
+    let char = lint.char == null? 1: lint.char -1;
 
     if (lint.original) {
         let len = (<string>lint.original).length;
         if (len > 0) {
-            range = new vscode.Range(
-                lint.line - 1, nonNeg(lint.char - 1),
-                lint.line - 1, lint.char + len - 1);
+            return new vscode.Range(
+                line, char,
+                line, char + len);
         }
     }
+
+    return new vscode.Range(
+        line, char -1, // it's an artificial 3-chars wide thing.
+        line, char +1);
+}
+
+export function defaultLintTranslator(lint: ArcanistLintMessage): vscode.Diagnostic {
+    let range = getRangeForLint(lint);
 
     return {
         code: lint.code,
         message: message(lint),
         severity: severity(lint),
         source: 'arc lint',
-        range: range,
+        range: getRangeForLint(lint),
     };
 }
 
