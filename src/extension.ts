@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const diagnostics = vscode.languages.createDiagnosticCollection('arc lint');
 
-	lint.setup(log);
+	lint.setup(log, diagnostics);
 	browse.setup(log);
 
 	function d(disposable: vscode.Disposable) {
@@ -21,27 +21,21 @@ export function activate(context: vscode.ExtensionContext) {
 
 	d(vscode.commands.registerCommand("arc-vscode.browseFile", browse.browseFile));
 
-	d(vscode.commands.registerCommand('arc-vscode.clearLint', () => diagnostics.clear()));
-	d(vscode.commands.registerCommand('arc-vscode.lintEverything', () => lint.lintEverything(diagnostics)));
+	d(vscode.commands.registerCommand('arc-vscode.clearLint', diagnostics.clear));
+	d(vscode.commands.registerCommand('arc-vscode.lintEverything', lint.lintEverything));
 
 	d(vscode.workspace.onDidSaveTextDocument(onTextDocumentEvent));
 	d(vscode.workspace.onDidOpenTextDocument(onTextDocumentEvent));
 	d(vscode.workspace.onDidChangeConfiguration(onChangeConfig));
 
 	if (vscode.window.activeTextEditor) {
-		lint.lintFile(vscode.window.activeTextEditor.document, diagnostics);
+		lint.lintFile(vscode.window.activeTextEditor.document);
 	}
-
-	d(vscode.window.onDidChangeActiveTextEditor(editor => {
-		if (editor) {
-			lint.lintFile(editor.document, diagnostics);
-		}
-	}));
 
 	d(vscode.workspace.onDidCloseTextDocument(document => diagnostics.delete(document.uri)));
 
 	function onTextDocumentEvent(document: vscode.TextDocument) {
-		lint.lintFile(document, diagnostics);
+		lint.lintFile(document);
 	}
 
 }

@@ -1,6 +1,9 @@
-## [1.3.0] - TBD 2023
+## [1.3.0] - July 2023
 
 - Moved hosting to https://we.phorge.it/ and update the brand
+- `arc lint` will now limit the number of concurrent subprocesses. Waiting calls will be collected to a joint
+  invocation.
+- Will no longer trigger `arc lint` when switching between open editors.
 
 ## [1.2.0] - November 2020
 

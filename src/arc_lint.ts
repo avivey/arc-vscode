@@ -1,68 +1,105 @@
 import * as vscode from 'vscode';
 import * as execa from 'execa';
-import * as path from 'path';
 
 import { ArcanistLintMessage } from './arcanist_types';
 import { setupCustomTranslators } from './arc_lint_translators';
-
+import {TaskGroupingExecutor} from './task_grouping';
 
 var LOG: vscode.OutputChannel;
 
-export function setup(log: vscode.OutputChannel) {
+var errorCollection: vscode.DiagnosticCollection;
+
+export function setup(log: vscode.OutputChannel, diagnosticCollection: vscode.DiagnosticCollection) {
     LOG = log;
+    errorCollection = diagnosticCollection;
     setupCustomTranslators(customLintTranslator);
     updateLintSeverityMap();
 }
 
-export function lintFile(document: vscode.TextDocument, errorCollection: vscode.DiagnosticCollection) {
+const linterTaskExecutor = new TaskGroupingExecutor<vscode.TextDocument>(2, lintFiles);
+
+async function lintFiles(documents: Iterable<vscode.TextDocument>): Promise<void> {
+
+    let docs_by_folder = new Map<vscode.WorkspaceFolder, vscode.Uri[]>();
+
+    for (let document of documents) {
+        if (document.uri.scheme !== "file") { continue; }
+        const folder = vscode.workspace.getWorkspaceFolder(document.uri);
+        if (!folder) { continue; }
+
+        let doc_list: vscode.Uri[];
+        if (docs_by_folder.has(folder)) {
+            doc_list = docs_by_folder.get(folder)!;
+        } else {
+            doc_list = new Array();
+            docs_by_folder.set(folder, doc_list);
+        }
+        doc_list.push(document.uri);
+    }
+
+    const lint_flags = ['lint', '--output', 'json', '--'];
+
+    for (const [folder, docs] of docs_by_folder) {
+
+        const folder_root = folder.uri.fsPath;
+
+        let paths: string[] = new Array();
+        for (let document_uri of docs) {
+            //  This looks bad...
+            paths.push(document_uri.fsPath.substring(folder_root.length+1));
+        }
+
+        let result: execa.ExecaReturnValue<string>;
+        try {
+            result = await execa(
+                'arc', lint_flags.concat(paths),
+                { cwd: folder_root },
+            );
+        } catch (error) {
+            result = error as execa.ExecaReturnValue;
+        }
+
+        for (let document_uri of docs) {
+            errorCollection.delete(document_uri);
+        }
+        handleArcLintWithPath(result, folder, errorCollection);
+    }
+}
+
+export function lintFile(document: vscode.TextDocument) {
     if (document.uri.scheme !== "file") { return; }
 
-    function handleExecResult(value: execa.ExecaReturnValue<string>) {
-        if (!value.stdout) {
-            errorCollection.delete(document.uri);
-            return;
-        }
-        try {
-            const lintMessages = JSON.parse(value.stdout);
+    linterTaskExecutor.addTask(document);
+}
 
+function handleArcLintWithPath(
+    value: execa.ExecaReturnValue<string>,
+    folder: vscode.WorkspaceFolder,
+    diagnostics: vscode.DiagnosticCollection) {
+
+    // The output is best described as "json lines" - each line is a complete
+    // json object, with one key (filename). This might be a bug in Arcanist.
+    for (const line of value.stdout.split(/\r?\n/)) {
+        try {
+            const lintMessages = JSON.parse(line);
             for (const filename in lintMessages) {
-                // TODO: This only probably works because we call arc with a single file.
-                errorCollection.set(document.uri, lintJsonToDiagnostics(lintMessages[filename]));
+                const fileUri = vscode.Uri.joinPath(folder.uri, filename);
+                diagnostics.set(fileUri, lintJsonToDiagnostics(lintMessages[filename]));
             }
         } catch (e) {
             console.log("Ignoring error", e);
         }
     }
-
-    const filename = document.uri.path;
-
-    LOG.appendLine("linting "+ filename);
-
-    execa(
-        'arc', ['lint', '--output', 'json', '--', path.basename(filename)],
-        { cwd: path.dirname(filename) },
-    ).then(handleExecResult, handleExecResult);
 }
 
-export function lintEverything(errorCollection: vscode.DiagnosticCollection) {
+
+export function lintEverything() {
     if (!vscode.workspace.workspaceFolders) { return; }
 
     for (const folder of vscode.workspace.workspaceFolders) {
 
         function handleArcLintEverything(value: execa.ExecaReturnValue<string>) {
-            // The output is best described as "json lines" - each line is a complete
-            // json object, with one key (filename). This might be a bug in Arcanist.
-            for (const line of value.stdout.split(/\r?\n/)) {
-                try {
-                    const lintMessages = JSON.parse(line);
-                    for (const filename in lintMessages) {
-                        const fileUri = vscode.Uri.joinPath(folder.uri, filename);
-                        errorCollection.set(fileUri, lintJsonToDiagnostics(lintMessages[filename]));
-                    }
-                } catch (e) {
-                    console.log("Ignoring error", e);
-                }
-            }
+            handleArcLintWithPath(value, folder, errorCollection);
         }
 
         if (folder.uri.scheme === "file") {
@@ -86,8 +123,8 @@ let customLintTranslator: Map<String, LintTranslator> = new Map();
 
 export function getRangeForLint(lint: ArcanistLintMessage): vscode.Range {
 
-    let line = lint.line == null? 1: lint.line -1;
-    let char = lint.char == null? 1: lint.char -1;
+    let line = lint.line == null ? 1 : lint.line - 1;
+    let char = lint.char == null ? 1 : lint.char - 1;
 
     if (lint.original) {
         let len = (<string>lint.original).length;
@@ -99,13 +136,11 @@ export function getRangeForLint(lint: ArcanistLintMessage): vscode.Range {
     }
 
     return new vscode.Range(
-        line, char -1, // it's an artificial 3-chars wide thing.
-        line, char +1);
+        line, char - 1, // it's an artificial 3-chars wide thing.
+        line, char + 1);
 }
 
 export function defaultLintTranslator(lint: ArcanistLintMessage): vscode.Diagnostic {
-    let range = getRangeForLint(lint);
-
     return {
         code: lint.code,
         message: message(lint),
