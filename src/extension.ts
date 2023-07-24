@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	d(vscode.commands.registerCommand("arc-vscode.browseFile", browse.browseFile));
 
-	d(vscode.commands.registerCommand('arc-vscode.clearLint', diagnostics.clear));
+	d(vscode.commands.registerCommand('arc-vscode.clearLint', () => diagnostics.clear()));
 	d(vscode.commands.registerCommand('arc-vscode.lintEverything', lint.lintEverything));
 
 	d(vscode.workspace.onDidSaveTextDocument(onTextDocumentEvent));

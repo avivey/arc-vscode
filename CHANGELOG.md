@@ -1,3 +1,7 @@
+## [1.3.1] - July 2023
+
+- Fix the "Clear all lint message" command
+
 ## [1.3.0] - July 2023
 
 - Moved hosting to https://we.phorge.it/ and update the brand
