@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-import { arc, ReturnValue } from './exec_arc';
+import { arc, ExecResult } from './exec_arc';
 
 var LOG: vscode.OutputChannel;
 
@@ -21,7 +21,7 @@ export function browseFile(resource: vscode.Uri | undefined) {
 
     const filename = resource.path;
 
-    function handleExecResult(value: ReturnValue) {
+    function handleExecResult(value: ExecResult) {
         // In the happy case, arc-browse outputs nothing.
         if (!value.stdout) {
             return;

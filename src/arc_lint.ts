@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import * as execa from 'execa';
 
+import {arc, ExecResult} from './exec_arc';
 import { ArcanistLintMessage } from './arcanist_types';
 import { setupCustomTranslators } from './arc_lint_translators';
 import {TaskGroupingExecutor} from './task_grouping';
@@ -49,20 +49,15 @@ async function lintFiles(documents: Iterable<vscode.TextDocument>): Promise<void
             paths.push(document_uri.fsPath.substring(folder_root.length+1));
         }
 
-        let result: execa.ExecaReturnValue<string>;
-        try {
-            result = await execa(
-                'arc', lint_flags.concat(paths),
-                { cwd: folder_root },
-            );
-        } catch (error) {
-            result = error as execa.ExecaReturnValue;
+        function arcLintHandle(result: ExecResult) {
+            // only remove from errorCollection when execution is done
+            for (let document_uri of docs) {
+                errorCollection.delete(document_uri);
+            }
+            handleArcLintWithPath(result, folder, errorCollection);
         }
 
-        for (let document_uri of docs) {
-            errorCollection.delete(document_uri);
-        }
-        handleArcLintWithPath(result, folder, errorCollection);
+        arc(lint_flags.concat(paths), arcLintHandle, folder_root);
     }
 }
 
@@ -73,7 +68,7 @@ export function lintFile(document: vscode.TextDocument) {
 }
 
 function handleArcLintWithPath(
-    value: execa.ExecaReturnValue<string>,
+    value: ExecResult,
     folder: vscode.WorkspaceFolder,
     diagnostics: vscode.DiagnosticCollection) {
 
@@ -98,15 +93,14 @@ export function lintEverything() {
 
     for (const folder of vscode.workspace.workspaceFolders) {
 
-        function handleArcLintEverything(value: execa.ExecaReturnValue<string>) {
+        function handleArcLintEverything(value: ExecResult) {
             handleArcLintWithPath(value, folder, errorCollection);
         }
 
         if (folder.uri.scheme === "file") {
-            execa(
-                'arc', ['lint', '--output', 'json', '--everything'],
-                { cwd: folder.uri.fsPath },
-            ).then(handleArcLintEverything, handleArcLintEverything);
+            arc(['lint', '--output', 'json', '--everything'],
+                handleArcLintEverything,
+                folder.uri.fsPath);
         }
     }
 }

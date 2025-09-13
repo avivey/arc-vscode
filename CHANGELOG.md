@@ -1,3 +1,7 @@
+## [1.4.0] - September 2025
+
+- Update dependencies.
+
 ## [1.3.1] - July 2023
 
 - Fix the "Clear all lint message" command

@@ -17,3 +17,6 @@ Makefile
 .pinterest-linters/
 .gitmodules
 images/
+*
+!LICENSE
+node_modules/**/readme*
