@@ -115,18 +115,34 @@ Possible Extra features:
 export type LintTranslator = (lint: ArcanistLintMessage) => vscode.Diagnostic;
 let customLintTranslator: Map<String, LintTranslator> = new Map();
 
-export function getRangeForLint(lint: ArcanistLintMessage): vscode.Range {
+export function getRangeForLint(lint: ArcanistLintMessage, length: number): vscode.Range {
 
     let line = lint.line == null ? 1 : lint.line - 1;
     let char = lint.char == null ? 1 : lint.char - 1;
+    if (char <= 0) {
+        char = 1;
+    }
 
     if (lint.original) {
-        let len = (<string>lint.original).length;
-        if (len > 0) {
+        // TODO test this code
+        let lines = (<string>lint.original).split(/\r\n|\r|\n/);
+        if (lines.length > 1) {
+            let lastLength = (<string>lines.at(-1)).length;
             return new vscode.Range(
                 line, char,
-                line, char + len);
+                line, lastLength);
         }
+
+        let len = (<string>lint.original).length;
+        if (len > 0) {
+            length = len;
+        }
+    }
+
+    if (length > 0) {
+        return new vscode.Range(
+            line, char,
+            line, char + length);
     }
 
     return new vscode.Range(
@@ -134,13 +150,21 @@ export function getRangeForLint(lint: ArcanistLintMessage): vscode.Range {
         line, char + 1);
 }
 
-export function defaultLintTranslator(lint: ArcanistLintMessage): vscode.Diagnostic {
+interface lintTranslatorOptions {
+    lengthFinder?: (message: string) => number;
+}
+
+export function defaultLintTranslator(lint: ArcanistLintMessage, options?:lintTranslatorOptions): vscode.Diagnostic {
+    let length = 0;
+    if (options?.lengthFinder && lint.description) {
+        length = options.lengthFinder(lint.description);
+    }
     return {
         code: lint.code,
         message: message(lint),
         severity: severity(lint),
         source: 'arc lint',
-        range: getRangeForLint(lint),
+        range: getRangeForLint(lint, length),
     };
 }
 

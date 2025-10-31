@@ -3,7 +3,7 @@ import spawn, { Result, SubprocessError } from 'nano-spawn';
 export interface ExecResult {
     stdout: string;
     stderr: string;
-    exitCode?: number;
+    exitCode: number;
 }
 type Handler = ((x: ExecResult) => void);
 
@@ -15,15 +15,24 @@ export interface ConduitResponse {
 }
 
 export function arc(args: string[], handler: Handler, cwd?: string) {
-    spawn('arc', args, { cwd: cwd }).then(handler, handler);
+    arcExec(args, cwd).then(handler, handler);
 }
 
-async function arcExec(args: string[], cwd?: string): Promise<ExecResult> {
+export async function arcExec(args: string[], cwd?: string): Promise<ExecResult> {
     try {
         let p = await spawn('arc', args, { cwd: cwd });
-        return p;
+        return {
+            stdout: p.stdout,
+            stderr: p.stderr,
+            exitCode: 0
+        };
     } catch (error) {
-        return error as SubprocessError;
+        let e = error as SubprocessError;
+        return {
+            stdout: e.stdout,
+            stderr: e.stderr,
+            exitCode: e.exitCode ?? 255,
+        };
     }
 }
 

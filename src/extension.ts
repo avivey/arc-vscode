@@ -3,6 +3,8 @@ import * as lint from './arc_lint';
 import * as browse from './arc_browse';
 import * as hovercard from './hovercard';
 
+import * as exec_arc from './exec_arc';
+
 export function activate(context: vscode.ExtensionContext) {
 	const log = vscode.window.createOutputChannel("arcanist");
 
@@ -24,6 +26,9 @@ export function activate(context: vscode.ExtensionContext) {
 	d(vscode.commands.registerCommand('arc-vscode.clearLint', () => diagnostics.clear()));
 	d(vscode.commands.registerCommand('arc-vscode.lintEverything', lint.lintEverything));
 
+	function onTextDocumentEvent(document: vscode.TextDocument) {
+		lint.lintFile(document);
+	}
 	d(vscode.workspace.onDidSaveTextDocument(onTextDocumentEvent));
 	d(vscode.workspace.onDidOpenTextDocument(onTextDocumentEvent));
 	d(vscode.workspace.onDidChangeConfiguration(onChangeConfig));
@@ -34,10 +39,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	d(vscode.workspace.onDidCloseTextDocument(document => diagnostics.delete(document.uri)));
 
-	function onTextDocumentEvent(document: vscode.TextDocument) {
-		lint.lintFile(document);
-	}
-
+	d(vscode.commands.registerCommand("arc-vscode.invokeArc", exec_arc.arcExec));
+	// TODO also expose invokeConduit
 }
 
 export function deactivate() { }

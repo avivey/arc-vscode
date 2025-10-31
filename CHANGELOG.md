@@ -1,3 +1,8 @@
+## [1.4.1] - October 2025
+
+- Expose command `arc-vscode.invokeArc` for other extensions to use.
+- One line ("TXT3 line too long") will show a better squiggle.
+
 ## [1.4.0] - September 2025
 
 - Update dependencies.
