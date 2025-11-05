@@ -1,0 +1,28 @@
+Some more in-depth information about this extension.
+
+Preview Remarkup feature
+========================
+
+It works by making a call to your Phorge server to render the Remarkup. So all
+your objects, macros, custom Remarkup rules are available and used. It's also
+a little slower then locally-rendered stuff like Markdown.
+
+I made it because I sometimes like writing unnecessary long things[1], and
+writing in the editor is easier then the built-in text editor of the browser.
+
+CSS, Javascript and images rendered in Remarkup should not work - these are
+assets downloaded from the internet and should be blocked by security policy.
+Images do appear to work though.
+
+The CSS for rendering, and the Fontawesome font are bundled in the extension.
+The CSS was created by means of downloading the `core.pkg.css` and manually
+removing things I thought are not used.
+
+
+
+
+
+
+
+
+[1] see, for example, here.

@@ -1,4 +1,6 @@
-import spawn, { Result, SubprocessError } from 'nano-spawn';
+import * as vscode from 'vscode';
+import spawn, { Options, SubprocessError } from 'nano-spawn';
+import path from 'node:path';
 
 export interface ExecResult {
     stdout: string;
@@ -18,15 +20,25 @@ export function arc(args: string[], handler: Handler, cwd?: string) {
     arcExec(args, cwd).then(handler, handler);
 }
 
-export async function arcExec(args: string[], cwd?: string): Promise<ExecResult> {
+type MyOpts = {
+    cwd?: string | vscode.Uri;
+}
+
+async function _arc(args: string[], options?: Options | MyOpts): Promise<ExecResult> {
+    if (options?.cwd instanceof vscode.Uri) {
+        options.cwd = options.cwd.fsPath;
+    }
+    options = options as Options;
+
     try {
-        let p = await spawn('arc', args, { cwd: cwd });
+        let p = await spawn('arc', args, options);
         return {
             stdout: p.stdout,
             stderr: p.stderr,
             exitCode: 0
         };
     } catch (error) {
+        console.log(error);
         let e = error as SubprocessError;
         return {
             stdout: e.stdout,
@@ -36,13 +48,30 @@ export async function arcExec(args: string[], cwd?: string): Promise<ExecResult>
     }
 }
 
-export function callConduit(method: string, body: object, handler: ConduitHandler, cwd?: string) {
-    function hs(value: Result) {
-        const output = JSON.parse(value.stdout);
-        handler(output);
+export async function arcExec(args: string[], cwd?: string | vscode.Uri): Promise<ExecResult> {
+    return _arc(args, { cwd });
+}
+
+export async function callConduit(method: string, body: object, cwd?: string | vscode.Uri): Promise<ConduitResponse> {
+    let v = await _arc(['call-conduit', '--', method], {
+        cwd,
+        stdin: { string: JSON.stringify(body) },
+    },
+    );
+    return JSON.parse(v.stdout);
+}
+
+/**
+ * Try to find a good workdir to invoke `arc` in for a specific file.
+ */
+export function findArcRoot(uri: vscode.Uri): vscode.Uri | undefined {
+    if (uri.scheme != 'file') {
+        return undefined;
     }
-    spawn('arc', ['call-conduit', '--', method], {
-        stdin: JSON.stringify(body),
-        cwd: cwd,
-    }).then(hs, hs);
+    const folder = vscode.workspace.getWorkspaceFolder(uri);
+    if (folder) {
+        return folder.uri;
+    }
+    const dir = path.dirname(uri.fsPath)
+    return vscode.Uri.file(dir);
 }

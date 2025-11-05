@@ -41,7 +41,7 @@ var provider: vscode.HoverProvider = {
                 resolve(hover ? new vscode.Hover(hover, wordRange) : null);
             }
 
-            callConduit('phid.lookup', { names: [mono] }, handler, cwd);
+            callConduit('phid.lookup', { names: [mono] }, cwd).then(handler, handler);
         });
     }
 };

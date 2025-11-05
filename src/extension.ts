@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as lint from './arc_lint';
 import * as browse from './arc_browse';
 import * as hovercard from './hovercard';
+import * as remarkup from './remarkup';
 
 import * as exec_arc from './exec_arc';
 
@@ -37,9 +38,12 @@ export function activate(context: vscode.ExtensionContext) {
 		lint.lintFile(vscode.window.activeTextEditor.document);
 	}
 
+	context.subscriptions.push(...remarkup.setup(context));
+
 	d(vscode.workspace.onDidCloseTextDocument(document => diagnostics.delete(document.uri)));
 
 	d(vscode.commands.registerCommand("arc-vscode.invokeArc", exec_arc.arcExec));
+	d(vscode.commands.registerCommand("arc-vscode.invokeConduit", exec_arc.callConduit));
 	// TODO also expose invokeConduit
 }
 

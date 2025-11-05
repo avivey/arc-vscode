@@ -1,7 +1,12 @@
+## [1.5.0] - November 2025
+
+- New feature: Preview Remarkup
+- Also expose command `arc-vscode.invokeConduit`, but it's probably broken.
+
 ## [1.4.1] - October 2025
 
 - Expose command `arc-vscode.invokeArc` for other extensions to use.
-- One line ("TXT3 line too long") will show a better squiggle.
+- One lint ("TXT3 line too long") will show a better squiggle.
 
 ## [1.4.0] - September 2025
 

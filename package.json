@@ -3,7 +3,7 @@
 	"displayName": "Arcanist",
 	"description": "Phorge/Arcanist support for VSCode",
 	"publisher": "avive",
-	"version": "1.4.1",
+	"version": "1.5.0",
 	"engines": {
 		"vscode": "^1.100.0"
 	},
@@ -59,8 +59,18 @@
 				"category": "arc"
 			},
 			{
+				"command": "arc-vscode.previewRemarkup",
+				"title": "preview Remarkup",
+				"category": "arc"
+			},
+			{
 				"command": "arc-vscode.invokeArc",
 				"title": "Execute arbitrary arc command.",
+				"category": "arc"
+			},
+			{
+				"command": "arc-vscode.invokeConduit",
+				"title": "Make a call to Conduit.",
 				"category": "arc"
 			}
 		],
@@ -117,6 +127,7 @@
 		"typescript": "^5.9.2"
 	},
 	"dependencies": {
-		"nano-spawn": "^1.0.3"
+		"nano-spawn": "^1.0.3",
+		"p-debounce": "^5.1.0"
 	}
 }

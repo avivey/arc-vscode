@@ -6,6 +6,8 @@ features integrated with Visual Studio Code.
 
 ## Features
 
+* ⭐NEW⭐ Preview Remarkup in your editor\
+![preview remarkup](images/remarkup.png)
 * Show arc-lint notes in editor \
 ![arc lint](images/lint.png)
 * Open file in Diffusion \
