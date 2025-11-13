@@ -1,3 +1,8 @@
+## [1.5.1]
+
+- Better handling for Remarkup on untitled files
+- Better error logging in arc
+
 ## [1.5.0] - November 2025
 
 - New feature: Preview Remarkup

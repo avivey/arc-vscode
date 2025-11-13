@@ -3,9 +3,9 @@ import * as path from 'path';
 
 import { arc, ExecResult } from './exec_arc';
 
-var LOG: vscode.OutputChannel;
+var LOG: vscode.LogOutputChannel;
 
-export function setup(log: vscode.OutputChannel) {
+export function setup(log: vscode.LogOutputChannel) {
     LOG = log;
 }
 

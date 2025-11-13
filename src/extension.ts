@@ -7,10 +7,11 @@ import * as remarkup from './remarkup';
 import * as exec_arc from './exec_arc';
 
 export function activate(context: vscode.ExtensionContext) {
-	const log = vscode.window.createOutputChannel("arcanist");
+	const log = vscode.window.createOutputChannel("arcanist", {log: true});
 
 	const diagnostics = vscode.languages.createDiagnosticCollection('arc lint');
 
+	exec_arc.setup(log);
 	lint.setup(log, diagnostics);
 	browse.setup(log);
 

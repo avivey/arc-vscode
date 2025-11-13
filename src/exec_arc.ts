@@ -2,6 +2,12 @@ import * as vscode from 'vscode';
 import spawn, { Options, SubprocessError } from 'nano-spawn';
 import path from 'node:path';
 
+var LOG: vscode.LogOutputChannel;
+
+export function setup(log: vscode.LogOutputChannel) {
+    LOG = log;
+}
+
 export interface ExecResult {
     stdout: string;
     stderr: string;
@@ -38,8 +44,8 @@ async function _arc(args: string[], options?: Options | MyOpts): Promise<ExecRes
             exitCode: 0
         };
     } catch (error) {
-        console.log(error);
         let e = error as SubprocessError;
+        LOG.error(e);
         return {
             stdout: e.stdout,
             stderr: e.stderr,
@@ -56,15 +62,38 @@ export async function callConduit(method: string, body: object, cwd?: string | v
     let v = await _arc(['call-conduit', '--', method], {
         cwd,
         stdin: { string: JSON.stringify(body) },
-    },
-    );
-    return JSON.parse(v.stdout);
+    });
+    try {
+        return JSON.parse(v.stdout);
+    } catch (error) {
+
+        if (v.stderr.match(/This command needs to communicate with a server, but no server URI/)) {
+            throw "No Phorge URI is configured";
+        }
+
+        LOG.warn(JSON.stringify({
+            message: "failed to parse Conduit response json",
+            stdout: v.stdout,
+            stderr: v.stderr,
+            method,
+            cwd,
+        }));
+        throw error;
+    }
 }
 
 /**
  * Try to find a good workdir to invoke `arc` in for a specific file.
  */
 export function findArcRoot(uri: vscode.Uri): vscode.Uri | undefined {
+
+    if (uri.scheme == 'untitled') {
+        // Unsaved file, just try to find any root that might work
+        if (vscode.workspace.workspaceFolders) {
+            return vscode.workspace.workspaceFolders[0].uri;
+        }
+    }
+
     if (uri.scheme != 'file') {
         return undefined;
     }
