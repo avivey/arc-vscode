@@ -1,7 +1,8 @@
-## [1.5.1]
+## [1.5.1] - April 2026
 
 - Better handling for Remarkup on untitled files
 - Better error logging in arc
+- Fixed squiggle for multi-line lints
 
 ## [1.5.0] - November 2025
 

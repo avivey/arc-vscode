@@ -127,10 +127,11 @@ export function getRangeForLint(lint: ArcanistLintMessage, length: number): vsco
         // TODO test this code
         let lines = (<string>lint.original).split(/\r\n|\r|\n/);
         if (lines.length > 1) {
+            let lastLine = line + lines.length - 1;
             let lastLength = (<string>lines.at(-1)).length;
             return new vscode.Range(
                 line, char,
-                line, lastLength);
+                lastLine, lastLength);
         }
 
         let len = (<string>lint.original).length;
